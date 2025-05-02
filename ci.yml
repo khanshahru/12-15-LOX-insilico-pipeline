@@ -1,2 +1,37 @@
 - name: Setup Nextflow
   uses: nf-core/setup-nextflow@v2.0.0
+# .github/workflows/ci.yml
+
+name: Nextflow CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clone your repository
+      - name: Checkout code
+        uses: actions/checkout@v4                # pulls your code into $GITHUB_WORKSPACE :contentReference[oaicite:0]{index=0}
+
+      # 2. Install Nextflow
+      - name: Setup Nextflow
+        uses: nf-core/setup-nextflow@v2           # installs the latest stable Nextflow :contentReference[oaicite:1]{index=1}
+
+      # 3. Run the pipeline
+      - name: Execute Nextflow pipeline
+        run: |
+          nextflow run . \
+            -profile test \                       # use your ‘test’ profile for CI :contentReference[oaicite:2]{index=2}
+            --with-report pipeline-report.html    # generate an HTML report
+
+      # 4. Upload the HTML report as an artifact
+      - name: Upload pipeline report
+        uses: actions/upload-artifact@v4         # v4 is recommended (v3 deprecates Jan 2025) :contentReference[oaicite:3]{index=3}
+        with:
+          name: pipeline-report
+          path: pipeline-report.html
